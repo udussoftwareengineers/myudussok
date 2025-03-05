@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Video Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 {
+            margin-top: 20px;
+            color: #fff;
+        }
+        .video-container {
+            width: 80%;
+            background: #111;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        video {
+            width: 100%;
+            border-radius: 5px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 10px;
+            width: 80%;
+            background: #333;
+            border-radius: 10px;
+        }
+        button {
+            background: #007bff;
+            border: none;
+            font-size: 16px;
+            padding: 10px 15px;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .progress-container {
+            width: 80%;
+            height: 10px;
+            background: #444;
+            border-radius: 5px;
+            margin-top: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #ffcc00;
+            border-radius: 5px;
+        }
+        .back-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #ff4444;
+        }
+        .back-btn:hover {
+            background: #cc0000;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Enhanced Video Player</h2>
+
+    <button class="back-btn" onclick="window.location.href='index.html'">Back</button>
+
+    <div class="video-container">
+        <video id="video" controls>
+            <source src="video1.mp4" type="video/mp4">
+            Your browser does not support HTML5 video.
+        </video>
+    </div>
+
+    <div class="progress-container" id="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="controls">
+        <button id="prev">⏮️ Prev</button>
+        <button id="playPause">▶️</button>
+        <button id="rewind">⏪ 10s</button>
+        <button id="fastForward">⏩ 10s</button>
+        <button id="next">⏭️ Next</button>
+        <button id="mute">🔊</button>
+        <button id="speed">1x</button>
+        <button id="fullscreen">⛶ Fullscreen</button>
+    </div>
+
+    <script>
+        const video = document.getElementById("video");
+        const playPause = document.getElementById("playPause");
+        const rewind = document.getElementById("rewind");
+        const fastForward = document.getElementById("fastForward");
+        const progressBar = document.getElementById("progress-bar");
+        const progressContainer = document.getElementById("progress-container");
+        const prevButton = document.getElementById("prev");
+        const nextButton = document.getElementById("next");
+        const muteButton = document.getElementById("mute");
+        const speedButton = document.getElementById("speed");
+        const fullscreenButton = document.getElementById("fullscreen");
+
+        let videoFiles = ["video1.mp4", "video2.mp4", "video3.mp4","video5.mp4","video6.mp4", "video7.mp4", "video8.mp4",
+        "video9.mp4", "video10.mp4"
+          ]; 
+        let currentVideoIndex = 0;
+        let playbackSpeed = 1;
+
+        function loadVideo(index) {
+            if (index >= 0 && index < videoFiles.length) {
+                video.src = videoFiles[index];
+                video.play();
+                playPause.textContent = "⏸️";
+                currentVideoIndex = index;
+            }
+        }
+
+        playPause.addEventListener("click", () => {
+            if (video.paused) {
+                video.play();
+                playPause.textContent = "⏸️";
+            } else {
+                video.pause();
+                playPause.textContent = "▶️";
+            }
+        });
+
+        rewind.addEventListener("click", () => video.currentTime -= 10);
+        fastForward.addEventListener("click", () => video.currentTime += 10);
+
+        prevButton.addEventListener("click", () => {
+            if (currentVideoIndex > 0) {
+                loadVideo(currentVideoIndex - 1);
+            }
+        });
+
+        nextButton.addEventListener("click", () => {
+            if (currentVideoIndex + 1 < videoFiles.length) {
+                loadVideo(currentVideoIndex + 1);
+            }
+        });
+
+        video.addEventListener("timeupdate", () => {
+            const percentage = (video.currentTime / video.duration) * 100;
+            progressBar.style.width = `${percentage}%`;
+        });
+
+        progressContainer.addEventListener("click", (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const newTime = (clickX / rect.width) * video.duration;
+            video.currentTime = newTime;
+        });
+
+        // Mute & Volume Control
+        muteButton.addEventListener("click", () => {
+            video.muted = !video.muted;
+            muteButton.textContent = video.muted ? "🔇" : "🔊";
+        });
+
+        // Playback Speed Control
+        speedButton.addEventListener("click", () => {
+            playbackSpeed = playbackSpeed === 2 ? 0.5 : playbackSpeed + 0.5;
+            video.playbackRate = playbackSpeed;
+            speedButton.textContent = `${playbackSpeed}x`;
+        });
+
+        // Fullscreen Toggle
+        fullscreenButton.addEventListener("click", () => {
+            if (!document.fullscreenElement) {
+                video.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        // Auto-play next video when current ends
+        video.addEventListener("ended", () => {
+            if (currentVideoIndex + 1 < videoFiles.length) {
+                loadVideo(currentVideoIndex + 1);
+            } else {
+                playPause.textContent = "▶️";
+            }
+        });
+
+        // Keyboard Shortcuts
+        document.addEventListener("keydown", (event) => {
+            if (event.key === " ") {
+                playPause.click();
+            } else if (event.key === "ArrowRight") {
+                video.currentTime += 10;
+            } else if (event.key === "ArrowLeft") {
+                video.currentTime -= 10;
+            } else if (event.key === "m") {
+                muteButton.click();
+            } else if (event.key === "f") {
+                fullscreenButton.click();
+            }
+        });
+
+    </script>
+
+</body>
+</html>

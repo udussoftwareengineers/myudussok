@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Udus App</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .login-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 14px;
+            color: gray;
+        }
+
+        .btn {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 5px;
+        }
+
+        .btn:hover {
+            background: #00c9ff;
+            transform: scale(1.05);
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Login to Udus</h2>
+
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Username">
+        </div>
+
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Password">
+            <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
+
+        <button class="btn" onclick="login()">Login</button>
+        <button class="btn" onclick="window.location.href='change-password.html'">Change Password</button>
+
+        <p class="error-message" id="errorMessage">⚠ Invalid Username or Password</p>
+    </div>
+
+    <script>
+        function togglePassword() {
+            let passwordField = document.getElementById("password");
+            passwordField.type = (passwordField.type === "password") ? "text" : "password";
+        }
+
+        function login() {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            let errorMessage = document.getElementById("errorMessage");
+
+            // Admin credentials (Fixed, not changeable)
+            const adminUsername = "@08082337242Aa";
+            const adminPassword = "#2025#";
+
+            // User credentials (Changeable)
+            let storedUsername = localStorage.getItem("username") || "ABCD";
+            let storedPassword = localStorage.getItem("password") || "1234";
+
+            if (username === adminUsername && password === adminPassword) {
+                window.location.href = "admin.html"; // Redirect admin
+            } else if (username === storedUsername && password === storedPassword) {
+                window.location.href = "udus.html"; // Redirect user
+            } else {
+                errorMessage.style.display = "block"; // Show error
+            }
+        }
+    </script>
+
+</body>
+</html>

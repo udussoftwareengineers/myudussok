@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictionary</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #4facfe, #00f2fe); /* Gradient background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+
+        /* Container */
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+            border: 1px solid #ddd; /* Subtle border */
+        }
+
+        /* Header */
+        h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        /* Search Bar */
+        #searchBar {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1.1rem;
+        }
+
+        /* Word List */
+        #wordList {
+            list-style: none;
+            padding: 0;
+        }
+
+        #wordList li {
+            background: #007BFF;
+            color: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1.1rem;
+        }
+
+        #wordList li:hover {
+            background: #0056b3;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button:hover {
+            background: linear-gradient(to right, #ff4b2b, #ff416c);
+            transform: scale(1.05);
+        }
+
+        /* Responsive Design for Mobile */
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            #searchBar {
+                font-size: 1rem;
+            }
+
+            #wordList li {
+                font-size: 1rem;
+            }
+
+            .back-button {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>PDF FILES 📖</h1>
+
+        <!-- Search Bar -->
+        <input type="text" id="searchBar" onkeyup="searchWords()" placeholder="Search for a word...">
+
+        <!-- Word List -->
+        <ul id="wordList">
+            <li onclick="downloadPDF('apple')">Apple</li>
+            <li onclick="downloadPDF('banana')">Banana</li>
+            <li onclick="downloadPDF('cat')">Cat</li>
+            <li onclick="downloadPDF('dog')">Dog</li>
+            <li onclick="downloadPDF('elephant')">Elephant</li>
+        </ul>
+    </div>
+
+    <!-- Back Button -->
+    <a href="udus.html" class="back-button">Back</a>
+
+    <script>
+        // Function to filter words
+        function searchWords() {
+            let input = document.getElementById("searchBar").value.toLowerCase();
+            let words = document.querySelectorAll("#wordList li");
+
+            words.forEach(word => {
+                let text = word.textContent.toLowerCase();
+                word.style.display = text.includes(input) ? "" : "none";
+            });
+        }
+
+        // Function to download a PDF when clicking a word
+        function downloadPDF(word) {
+            let filePath = `${word}.pdf`; // PDFs must be in the same folder as the HTML file
+            let link = document.createElement("a");
+            link.href = filePath;
+            link.download = `${word}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+
+</body>
+</html>

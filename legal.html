@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #4A90E2, #50E3C2);
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .fun-text {
+            animation: bounce 1s infinite alternate;
+            color: #FFD700;
+        }
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-3px); }
+        }
+        .btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            font-size: 14px;
+            color: #fff;
+            background: #ff5722;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: #e64a19;
+            transform: scale(1.1);
+        }
+        .footer {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        .whatsapp-link {
+            color: #FFD700;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .whatsapp-link:hover {
+            text-decoration: underline;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body onload="checkHash()">
+
+    <div class="container">
+        <h1 id="page-title">Terms & Conditions </h1>
+        
+        <div id="terms-content">
+            <p><b>1. Be nice! ✨</b> No rudeness, or our virtual bouncer will "politely" remove you.</p>
+            <p><b>2. No spam 🚫</b> If you flood the app, we might flood your inbox... with memes!</p>
+            <p><b>3. Stay safe 🔐</b> Use a strong password. "1234" is not a strong password.</p>
+            <p><b>4. Updates happen 🔄</b> If the app changes overnight, it's magic (or developers working hard).</p>
+            <p class="fun-text"><b>5. Have fun! 🎉</b> Seriously, it’s a rule.</p>
+        </div>
+
+        <div id="privacy-content" class="hidden">
+            <p><b>1. Your Data is Safe! ✅</b> We don’t sell your info. Not even for a pizza!</p>
+            <p><b>2. No Spying! 👀</b> We respect your privacy—no secret cameras, we promise.</p>
+            <p><b>3. Limited Cookies 🍪</b> We only use cookies for better experience, not for tracking.</p>
+            <p><b>4. Your Choices Matter ✨</b> You control your settings. No hidden surprises!</p>
+            <p class="fun-text"><b>5. Have Questions? 🤔</b> Ask us anything, we’re here for you!</p>
+        </div>
+
+        <a href="udus.html" class="btn">Back</a>
+        <button onclick="toggleContent()" class="btn" id="toggle-btn"> View Privacy Policy</button>
+
+        <p class="footer">📅 Last Updated: Feb 2025 |  
+            💌 <a href="https://wa.me/2349038666754" class="whatsapp-link">Chat with us on WhatsApp</a>
+        </p>
+    </div>
+
+    <script>
+        function toggleContent() {
+            var terms = document.getElementById("terms-content");
+            var privacy = document.getElementById("privacy-content");
+            var title = document.getElementById("page-title");
+            var button = document.getElementById("toggle-btn");
+
+            if (terms.classList.contains("hidden")) {
+                terms.classList.remove("hidden");
+                privacy.classList.add("hidden");
+                title.innerHTML = "Terms & Conditions ";
+                button.innerHTML = " View Privacy Policy";
+                window.location.hash = "terms";
+            } else {
+                terms.classList.add("hidden");
+                privacy.classList.remove("hidden");
+                title.innerHTML = "Privacy Policy 🔒";
+                button.innerHTML = " View Terms & Conditions";
+                window.location.hash = "privacy";
+            }
+        }
+
+        function checkHash() {
+            if (window.location.hash === "#privacy") {
+                document.getElementById("terms-content").classList.add("hidden");
+                document.getElementById("privacy-content").classList.remove("hidden");
+                document.getElementById("page-title").innerHTML = "Privacy Policy 🔒";
+                document.getElementById("toggle-btn").innerHTML = " View Terms & Conditions";
+            } else {
+                document.getElementById("terms-content").classList.remove("hidden");
+                document.getElementById("privacy-content").classList.add("hidden");
+                document.getElementById("page-title").innerHTML = "Terms & Conditions ";
+                document.getElementById("toggle-btn").innerHTML = " View Privacy Policy";
+            }
+        }
+    </script>
+
+</body>
+</html>
