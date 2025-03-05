@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .chat-container {
+      width: 400px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      position: relative;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #chat-box {
+      height: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+    }
+    .input-container {
+      display: flex;
+      gap: 10px;
+    }
+    #message-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #send-button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .message {
+      padding: 8px;
+      border-radius: 5px;
+      margin: 5px 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 80%;
+      word-break: break-word;
+    }
+    .sent {
+      background: #daf8cb;
+      align-self: flex-end;
+      text-align: right;
+      margin-left: auto;
+    }
+    .received {
+      background: #e3f2fd;
+      align-self: flex-start;
+    }
+    .timestamp {
+      font-size: 12px;
+      color: gray;
+      display: block;
+      margin-top: 5px;
+    }
+    .back-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .delete-btn {
+      cursor: pointer;
+      color: red;
+      font-size: 12px;
+      margin-left: 10px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container">
+      <button class="back-btn" onclick="window.location.href='udus.html'">BACK</button>
+    <h1>GROUP CHAT</h1>
+    <div id="chat-box"></div>
+    <div class="input-container">
+      <input type="text" id="message-input" placeholder="Type a message...">
+      <button id="send-button">SEND</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCt-bCNYfA1dPX9uzARgbFZGbwPBngfglU",
+      authDomain: "deepseek-64e0b.firebaseapp.com",
+      projectId: "deepseek-64e0b",
+      storageBucket: "deepseek-64e0b.firebasestorage.app",
+      messagingSenderId: "60783782920",
+      appId: "1:60783782920:web:907262c3179aeaafdf75bd",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let admissionNumber = localStorage.getItem("chat-admission");
+    let username = localStorage.getItem("chat-username");
+
+    async function validateAdmission(admission) {
+      const validAdmissions = ["2412106000","2412106001", "2412106002", "2412106003", "2412106004", "2412106005", "2412106006", "2412106007", "2412106008", "2412106009", "2412106010",
+      "2412106011", "2412106012", "2412106013", "2412106014", "2412106015", "2412106016", "2412106017", "2412106018", "2412106019", "2412106020", "2412106021", "2412106022", "2412106023", "2412106024", "2412106025", "2412106026", "2412106027", "2412106028", "2412106029", "2412106030", "2412106031", "2412106032", "2412106033", "2412106033",
+      "2412106034", "2412106035", "2412106036", "2412106037", "2412106038", "2412106039",
+      "2412106040","2412106041", "2412106042", "2412106043",
+      "2412106044", "2412106045", "2412106046", "2412106047", "2412106048", "2412106049", "2412106050", "2412106051", "2412106052", "2412106053", "2412106054", "2412106055", "2412106056", "2412106057", "2412106058", "2412106059", "2412106060"];; // Add real admission numbers here
+      return validAdmissions.includes(admission);
+    }
+
+    async function isUsernameTaken(name) {
+      const usersRef = collection(db, "users");
+      const usersSnapshot = await getDocs(usersRef);
+      let taken = false;
+      usersSnapshot.forEach(doc => {
+        if (doc.data().username === name) {
+          taken = true;
+        }
+      });
+      return taken;
+    }
+
+    async function askForDetails() {
+      while (!admissionNumber || !(await validateAdmission(admissionNumber))) {
+        admissionNumber = prompt("Enter your Admission Number:");
+        if (!(await validateAdmission(admissionNumber))) {
+          alert("Invalid Admission Number. Please try again.");
+        } else {
+          localStorage.setItem("chat-admission", admissionNumber);
+        }
+      }
+
+      while (!username) {
+        let tempUsername = prompt("Enter your username:");
+        if (await isUsernameTaken(tempUsername)) {
+          alert("Username already taken. Choose another one.");
+        } else {
+          username = tempUsername;
+          localStorage.setItem("chat-username", username);
+          await addDoc(collection(db, "users"), { username });
+        }
+      }
+    }
+
+    askForDetails();
+
+    const chatBox = document.getElementById("chat-box");
+    const messageInput = document.getElementById("message-input");
+    const sendButton = document.getElementById("send-button");
+
+    sendButton.addEventListener("click", async () => {
+      const message = messageInput.value.trim();
+      if (message !== "") {
+        try {
+          await addDoc(collection(db, "messages"), {
+            text: message,
+            sender: username,
+            timestamp: serverTimestamp(),
+          });
+          messageInput.value = "";
+        } catch (error) {
+          console.error("Error sending message:", error);
+        }
+      }
+    });
+
+    async function deleteMessage(id) {
+      const confirmDelete = confirm("Do you want to delete this message?");
+      if (confirmDelete) {
+        await deleteDoc(doc(db, "messages", id));
+      }
+    }
+
+    function addMessageToChatBox(id, message, sender, timestamp) {
+      const messageElement = document.createElement("div");
+      messageElement.classList.add("message", sender === username ? "sent" : "received");
+      messageElement.innerHTML = `
+        <div>
+          <strong>${sender}:</strong> ${message}
+          <span class="timestamp">${timestamp ? timestamp.toDate().toLocaleString() : "Just now"}</span>
+        </div>
+        ${sender === username ? `<span class="delete-btn" data-id="${id}">DELETE</span>` : ""}
+      `;
+      chatBox.appendChild(messageElement);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    const q = query(collection(db, "messages"), orderBy("timestamp"));
+    onSnapshot(q, (snapshot) => {
+      chatBox.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        addMessageToChatBox(doc.id, data.text, data.sender, data.timestamp);
+      });
+    });
+
+    chatBox.addEventListener("click", (e) => {
+      if (e.target.classList.contains("delete-btn")) {
+        deleteMessage(e.target.dataset.id);
+      }
+    });
+
+  </script>
+</body>
+</html>
