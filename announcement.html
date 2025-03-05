@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Announcement Board</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('https://www.transparenttextures.com/patterns/wood-pattern.png') no-repeat center center/cover;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            transition: background 0.5s ease;
+        }
+
+        /* Back Button */
+        .button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: white;
+            color: black;
+            font-size: 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+        }
+
+        .button:hover {
+            background: #ffcc00;
+        }
+
+        .logo {
+            width: 100px;
+            margin-top: 50px;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .notice-board {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 15px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            border: 5px solid #ffcc00;
+            animation: slideIn 1.5s ease-in-out;
+        }
+
+        .notice-board h1 {
+            font-size: 35px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+
+        .announcement {
+            background: white;
+            color: black;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            border-left: 5px solid red;
+            margin-top: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .countdown {
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Back Button -->
+    <button class="button" onclick="window.location.href='udus.html'">⬅️ Back</button>
+
+    <!-- School Logo -->
+    <img src="UDUS.png" alt="School Logo" class="logo">
+
+    <!-- Date and Time Display -->
+    <div class="date-time" id="date-time"></div>
+
+    <!-- Notice Board -->
+    <div class="notice-board">
+        <h1>NOTICE!!!</h1>
+        <div id="announcement" class="announcement" contenteditable="false">
+            <!-- Announcements will be loaded here -->
+        </div>
+        <div class="countdown">⏳ Event Countdown: <span id="timer">Loading...</span></div>
+    </div>
+
+    <!-- Firebase and App Logic -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAE2lm5GXQbrb1bwyuuYDxDGAzTaLHHyTI",
+            authDomain: "timetable-e82ed.firebaseapp.com",
+            projectId: "timetable-e82ed",
+            storageBucket: "timetable-e82ed.firebasestorage.app",
+            messagingSenderId: "851766667908",
+            appId: "1:851766667908:web:d892cbd98b94bc67cd30d1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const announcement = document.getElementById("announcement");
+        let tapCount = 0;
+
+        // Load Announcement from Firestore
+        async function loadAnnouncement() {
+            const docRef = doc(db, "announcements", "latest");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                announcement.innerHTML = docSnap.data().content;
+            }
+            findClosestDate();
+        }
+
+        // Enable Editing for Admins
+        document.body.addEventListener("click", () => {
+            tapCount++;
+            setTimeout(() => { tapCount = 0; }, 1000);
+
+            if (tapCount === 3) {
+                let password = prompt("Enter admin password:");
+                if (password === "1234") {  
+                    enableEditing();
+                } else {
+                    alert("Incorrect password!");
+                }
+                tapCount = 0;
+            }
+        });
+
+        function enableEditing() {
+            announcement.contentEditable = "true";
+            alert("Editing enabled. Click outside to save.");
+            announcement.focus();
+
+            announcement.addEventListener("blur", async () => {
+                announcement.contentEditable = "false";
+
+                await setDoc(doc(db, "announcements", "latest"), {
+                    content: announcement.innerHTML
+                });
+
+                alert("Announcement updated!");
+                findClosestDate();
+            }, { once: true });
+        }
+
+        // Find Closest Date for Countdown
+        function findClosestDate() {
+            let text = announcement.innerHTML;
+            let datePattern = /\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}\b/g;
+            let matches = text.match(datePattern);
+
+            if (!matches) {
+                document.getElementById("timer").innerHTML = "No upcoming deadlines.";
+                return;
+            }
+
+            let today = new Date();
+            let closestDate = null;
+
+            matches.forEach(dateStr => {
+                let eventDate = new Date(dateStr);
+                if (eventDate > today && (!closestDate || eventDate < closestDate)) {
+                    closestDate = eventDate;
+                }
+            });
+
+            if (closestDate) {
+                updateCountdown(closestDate);
+            } else {
+                document.getElementById("timer").innerHTML = "No upcoming deadlines.";
+            }
+        }
+
+        // Update Countdown Timer
+        function updateCountdown(eventDate) {
+            function countdown() {
+                let now = new Date().getTime();
+                let difference = eventDate.getTime() - now;
+
+                if (difference <= 0) {
+                    document.getElementById("timer").innerHTML = "Deadline reached!";
+                    return;
+                }
+
+                let days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                let hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                let seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                document.getElementById("timer").innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+
+            countdown();
+            setInterval(countdown, 1000);
+        }
+
+        // Update Date and Time
+        function updateDateTime() {
+            let now = new Date();
+            document.getElementById("date-time").innerHTML = now.toLocaleString();
+        }
+
+        // Initial Load
+        loadAnnouncement();
+        setInterval(updateDateTime, 1000);
+    </script>
+</body>
+</html>
